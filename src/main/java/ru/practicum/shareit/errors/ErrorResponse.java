@@ -3,9 +3,6 @@ package ru.practicum.shareit.errors;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @Getter
 @Setter
 public class ErrorResponse {

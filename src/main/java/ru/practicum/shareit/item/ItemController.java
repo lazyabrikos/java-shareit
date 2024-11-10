@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -41,7 +40,7 @@ public class ItemController {
     public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") Long userId,
                               @RequestBody ItemDto itemDto, @PathVariable Long itemId) {
         log.info("Get PATCH request with body {}", itemDto);
-        ItemDto response = itemService.updateItem(itemDto, itemId,  userId);
+        ItemDto response = itemService.updateItem(itemDto, itemId, userId);
         log.info("Send response for PATCH request with body {}", response);
         return response;
     }
@@ -56,7 +55,7 @@ public class ItemController {
 
     @GetMapping("/search")
     public List<ItemDto> getByContext(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                @RequestParam(name = "text") String text) {
+                                      @RequestParam(name = "text") String text) {
         log.info("Get GET request /items/search wich text = {}", text);
         List<ItemDto> response = itemService.getByContext(text, userId);
         log.info("Send response for GET request with body {}", response);
