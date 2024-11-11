@@ -11,7 +11,7 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -22,9 +22,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto createUser(UserDto userDto) {
         User user = UserMapper.mapToUser(userDto);
-        Optional<User> savedUser = userRepository.getByEmail(user.getEmail());
-        if (savedUser.isPresent()) {
-            throw new EmailException("Email is already exists");
+        Set<String> emails = userRepository.getEmails();
+        if (emails.contains(user.getEmail())) {
+            throw new EmailException("Email: " + user.getEmail() + "already exists");
         }
         return UserMapper.mapToUserDto(userRepository.createUser(user));
     }
@@ -33,15 +33,13 @@ public class UserServiceImpl implements UserService {
     public UserDto updateUser(UserDto userDto, Long userId) {
         User user = UserMapper.mapToUser(userDto);
 
-
-        Optional<User> savedWithEmail = userRepository.getByEmail(user.getEmail());
-        if (savedWithEmail.isPresent()) {
-            throw new EmailException("Email is already exists");
-        }
-
         User savedUser = userRepository.getUserById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found with id= " + userId));
 
+        Set<String> emails = userRepository.getEmails();
+        if (emails.contains(user.getEmail())) {
+            throw new EmailException("Email: " + user.getEmail() + "already exists");
+        }
         if (user.getEmail() == null) {
             user.setEmail(savedUser.getEmail());
         }
@@ -49,8 +47,8 @@ public class UserServiceImpl implements UserService {
         if (user.getName() == null) {
             user.setName(savedUser.getName());
         }
-
-        return UserMapper.mapToUserDto(userRepository.updateUser(user, userId));
+        user.setId(userId);
+        return UserMapper.mapToUserDto(userRepository.updateUser(user));
     }
 
     @Override

@@ -4,11 +4,12 @@ import ru.practicum.shareit.user.User;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
 
 public interface UserRepository {
     User createUser(User user);
 
-    User updateUser(User user, Long userId);
+    User updateUser(User user);
 
     Optional<User> getUserById(Long userId);
 
@@ -16,5 +17,5 @@ public interface UserRepository {
 
     Collection<User> getAll();
 
-    Optional<User> getByEmail(String email);
+    Set<String> getEmails();
 }

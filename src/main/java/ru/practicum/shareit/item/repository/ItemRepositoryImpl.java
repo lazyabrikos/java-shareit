@@ -3,7 +3,7 @@ package ru.practicum.shareit.item.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
-import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.Item;
 
 import java.util.*;
 
@@ -12,19 +12,18 @@ import java.util.*;
 public class ItemRepositoryImpl implements ItemRepository {
 
     private final Map<Long, Item> items = new HashMap<>();
-    private static Long ITEM_ID_COUNT = 0L;
+    private Long itemIdCount = 0L;
 
     @Override
     public Item createItem(Item item) {
-        item.setId(++ITEM_ID_COUNT);
-        items.put(ITEM_ID_COUNT, item);
+        item.setId(++itemIdCount);
+        items.put(item.getId(), item);
         return item;
     }
 
     @Override
-    public Item updateItem(Item item, Long itemId) {
-        item.setId(itemId);
-        items.put(itemId, item);
+    public Item updateItem(Item item) {
+        items.put(item.getId(), item);
         return item;
     }
 
