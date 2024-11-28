@@ -6,7 +6,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.practicum.shareit.exceptions.BadRequestException;
 import ru.practicum.shareit.exceptions.EmailException;
+import ru.practicum.shareit.exceptions.ItemOwnerException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 
 @Slf4j
@@ -25,5 +27,12 @@ public class ErrorHandler {
     public ErrorResponse handleNotFound(final NotFoundException e) {
         log.error("Not found exception, {}", e.getMessage(), e);
         return new ErrorResponse("Not found exception", e.getMessage());
+    }
+
+    @ExceptionHandler({ItemOwnerException.class, BadRequestException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleOwnerException(final Exception e) {
+        log.error("Owner exception, {}", e.getMessage(), e);
+        return new ErrorResponse("Owner exception", e.getMessage());
     }
 }
