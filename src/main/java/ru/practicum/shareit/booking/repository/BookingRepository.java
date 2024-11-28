@@ -6,7 +6,6 @@ import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 
-import java.awt.print.Book;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -16,10 +15,10 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findAllByBooker_IdOrderByStartAsc(Long bookerId);
 
     @Query("SELECT b FROM Booking b " +
-           "WHERE b.booker.id = ?1 " +
-           "AND b.start <= ?2 " +
-           "AND b.end >=?2 " +
-           "ORDER BY b.start")
+            "WHERE b.booker.id = ?1 " +
+            "AND b.start <= ?2 " +
+            "AND b.end >=?2 " +
+            "ORDER BY b.start")
     List<Booking> findAllBookerCurrentBookings(Long bookerId, LocalDateTime now);
 
     @Query("SELECT b FROM Booking b " +
@@ -66,13 +65,13 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findAllByItem_IdInAndStatusOrderByStartAsc(List<Long> itemIds, BookingStatus status);
 
     @Query("SELECT b FROM Booking b " +
-           "JOIN FETCH b.item i " +
-           "WHERE i.owner.id = ?1 " +
-           "AND i.id = ?2 " +
-           "AND b.end <= ?3 " +
-           "AND b.status = 'APPROVED' " +
-           "ORDER by b.end DESC " +
-           "LIMIT 1")
+            "JOIN FETCH b.item i " +
+            "WHERE i.owner.id = ?1 " +
+            "AND i.id = ?2 " +
+            "AND b.end <= ?3 " +
+            "AND b.status = 'APPROVED' " +
+            "ORDER by b.end DESC " +
+            "LIMIT 1")
     Optional<Booking> findLastBookingForItem(Long userId, Long itemId, LocalDateTime now);
 
 

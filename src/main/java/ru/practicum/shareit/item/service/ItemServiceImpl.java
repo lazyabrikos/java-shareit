@@ -6,21 +6,19 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.exceptions.ItemOwnerException;
 import ru.practicum.shareit.exceptions.NotAvailableForBooking;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.CommentMapper;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -106,11 +104,11 @@ public class ItemServiceImpl implements ItemService {
         return items.stream()
                 .filter(item -> item.getOwner().getId().equals(userId))
                 .map(item -> ItemMapper.mapToItemDto(item,
-                        bookingRepository.findLastBookingForItem(userId, item.getId(), LocalDateTime.now())
-                                .map(Booking::getEnd).orElse(null),
-                        bookingRepository.findNextBookingForItem(userId, item.getId(), LocalDateTime.now())
-                                .map(Booking::getStart).orElse(null),
-                        findComments(item.getId())
+                                bookingRepository.findLastBookingForItem(userId, item.getId(), LocalDateTime.now())
+                                        .map(Booking::getEnd).orElse(null),
+                                bookingRepository.findNextBookingForItem(userId, item.getId(), LocalDateTime.now())
+                                        .map(Booking::getStart).orElse(null),
+                                findComments(item.getId())
                         )
                 )
                 .toList();
@@ -124,7 +122,7 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new NotFoundException("Item not found with id = " + itemId));
 
         List<Booking> bookings = bookingRepository.findAllByItem_IdAndBooker_IdAndStatus(itemId,
-                userId, BookingStatus.APPROVED)
+                        userId, BookingStatus.APPROVED)
                 .stream()
                 .filter(booking -> booking.getStart().isBefore(LocalDateTime.now()))
                 .toList();

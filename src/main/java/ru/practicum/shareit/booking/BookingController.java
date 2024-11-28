@@ -1,16 +1,13 @@
 package ru.practicum.shareit.booking;
 
-import jakarta.persistence.Column;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDtoInput;
 import ru.practicum.shareit.booking.dto.BookingDtoOutput;
-import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingService;
 
-import java.awt.print.Book;
 import java.util.List;
 
 @Slf4j
@@ -33,7 +30,7 @@ public class BookingController {
     public BookingDtoOutput updateBookingStatus(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                 @PathVariable Long bookingId,
                                                 @RequestParam(name = "approved") boolean isApproved) {
-        log.info("Got PATCH request for updating status of booking with id {}",bookingId);
+        log.info("Got PATCH request for updating status of booking with id {}", bookingId);
         BookingDtoOutput response = bookingService.updateStatus(userId, bookingId, isApproved);
         log.info("Send response with body {}", response);
         return response;
@@ -49,7 +46,7 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDtoOutput> getAllBokingsForBooker(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                 @RequestParam(name = "state", defaultValue = "ALL") String state) {
+                                                         @RequestParam(name = "state", defaultValue = "ALL") String state) {
         log.info("Got GET request for all bookings for user with id = " + userId);
         List<BookingDtoOutput> response = bookingService.getBookingsForBooker(userId, state);
         log.info("Send response with body {}", response);
