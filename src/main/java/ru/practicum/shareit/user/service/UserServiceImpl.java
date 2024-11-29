@@ -2,7 +2,6 @@ package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exceptions.EmailException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -11,7 +10,6 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -22,50 +20,39 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto createUser(UserDto userDto) {
         User user = UserMapper.mapToUser(userDto);
-        Set<String> emails = userRepository.getEmails();
-        if (emails.contains(user.getEmail())) {
-            throw new EmailException("Email: " + user.getEmail() + "already exists");
-        }
-        return UserMapper.mapToUserDto(userRepository.createUser(user));
+        return UserMapper.mapToUserDto(userRepository.save(user));
     }
 
     @Override
     public UserDto updateUser(UserDto userDto, Long userId) {
-        User user = UserMapper.mapToUser(userDto);
-
-        User savedUser = userRepository.getUserById(userId)
+        User savedUser = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found with id= " + userId));
 
-        Set<String> emails = userRepository.getEmails();
-        if (emails.contains(user.getEmail())) {
-            throw new EmailException("Email: " + user.getEmail() + "already exists");
-        }
-        if (user.getEmail() == null) {
-            user.setEmail(savedUser.getEmail());
+        if (userDto.getEmail() != null) {
+            savedUser.setEmail(userDto.getEmail());
         }
 
-        if (user.getName() == null) {
-            user.setName(savedUser.getName());
+        if (userDto.getName() != null) {
+            savedUser.setName(userDto.getName());
         }
-        user.setId(userId);
-        return UserMapper.mapToUserDto(userRepository.updateUser(user));
+        return UserMapper.mapToUserDto(userRepository.save(savedUser));
     }
 
     @Override
     public UserDto getUserById(Long userId) {
-        return UserMapper.mapToUserDto(userRepository.getUserById(userId)
+        return UserMapper.mapToUserDto(userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found with id= " + userId)));
     }
 
     @Override
     public void deleteUser(Long userId) {
-        userRepository.deleteUser(userId);
+        userRepository.deleteById(userId);
     }
 
     @Override
     public List<UserDto> getAll() {
 
-        Collection<User> users = userRepository.getAll();
+        Collection<User> users = userRepository.findAll();
         return users.stream()
                 .map(UserMapper::mapToUserDto)
                 .toList();
