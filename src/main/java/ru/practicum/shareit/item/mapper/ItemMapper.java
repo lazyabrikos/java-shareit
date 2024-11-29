@@ -14,7 +14,14 @@ public class ItemMapper {
 
     public static ItemDto mapToItemDto(Item item, LocalDateTime lastBooking,
                                        LocalDateTime nextBooking, List<CommentDto> comments) {
-        return new ItemDto(item.getId(), item.getName(), item.getDescription(),
-                item.getAvailable(), lastBooking, nextBooking, comments);
+        return ItemDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .available(item.getAvailable())
+                .lastBooking(lastBooking)
+                .nextBooking(nextBooking)
+                .comments(comments)
+                .build();
     }
 }

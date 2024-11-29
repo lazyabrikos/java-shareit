@@ -1,12 +1,14 @@
 package ru.practicum.shareit.booking;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDtoInput;
 import ru.practicum.shareit.booking.dto.BookingDtoOutput;
+import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.exceptions.BadRequestException;
 
 import java.util.List;
 
@@ -19,7 +21,7 @@ public class BookingController {
 
     @PostMapping
     public BookingDtoOutput createBooking(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                          @Validated @RequestBody BookingDtoInput bookingDtoInput) {
+                                          @Valid @RequestBody BookingDtoInput bookingDtoInput) {
         log.info("Got POST request with body {}", bookingDtoInput);
         BookingDtoOutput response = bookingService.create(bookingDtoInput, userId);
         log.info("Send response with body {}", response);
@@ -48,7 +50,14 @@ public class BookingController {
     public List<BookingDtoOutput> getAllBokingsForBooker(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                          @RequestParam(name = "state", defaultValue = "ALL") String state) {
         log.info("Got GET request for all bookings for user with id = " + userId);
-        List<BookingDtoOutput> response = bookingService.getBookingsForBooker(userId, state);
+        BookingState stateEnum;
+        try {
+            stateEnum = BookingState.valueOf(state.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("Wrong value of parameter state");
+        }
+        List<BookingDtoOutput> response = bookingService.getBookingsForBooker(userId,
+                stateEnum);
         log.info("Send response with body {}", response);
         return response;
     }
@@ -57,7 +66,14 @@ public class BookingController {
     public List<BookingDtoOutput> getAllBookingsForOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                          @RequestParam(name = "state", defaultValue = "ALL") String state) {
         log.info("Got GET request for all bookings for user with id = " + userId);
-        List<BookingDtoOutput> response = bookingService.getBookingsForOwner(userId, state);
+        BookingState stateEnum;
+        try {
+            stateEnum = BookingState.valueOf(state.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("Wrong value of parameter state");
+        }
+        List<BookingDtoOutput> response = bookingService.getBookingsForOwner(userId,
+                stateEnum);
         log.info("Send response with body {}", response);
         return response;
     }

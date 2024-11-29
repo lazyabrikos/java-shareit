@@ -7,9 +7,13 @@ import ru.practicum.shareit.booking.dto.BookingDtoInput;
 import ru.practicum.shareit.booking.dto.BookingDtoOutput;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.exceptions.*;
+import ru.practicum.shareit.exceptions.DataAccessException;
+import ru.practicum.shareit.exceptions.ItemOwnerException;
+import ru.practicum.shareit.exceptions.NotAvailableForBooking;
+import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.User;
@@ -83,43 +87,42 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDtoOutput> getBookingsForBooker(Long userId, String state) {
+    public List<BookingDtoOutput> getBookingsForBooker(Long userId, BookingState state) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found with id = " + userId));
 
-        return switch (state.toUpperCase()) {
-            case "ALL" -> bookingRepository.findAllByBooker_IdOrderByStartAsc(userId)
+        return switch (state) {
+            case BookingState.ALL -> bookingRepository.findAllByBooker_IdOrderByStartAsc(userId)
                     .stream()
                     .map(BookingMapper::mapBookingToBookingDtoOutput)
                     .collect(Collectors.toList());
-            case "CURRENT" -> bookingRepository.findAllBookerCurrentBookings(userId, LocalDateTime.now())
+            case BookingState.CURRENT -> bookingRepository.findAllBookerCurrentBookings(userId, LocalDateTime.now())
                     .stream()
                     .map(BookingMapper::mapBookingToBookingDtoOutput)
                     .collect(Collectors.toList());
-            case "PAST" -> bookingRepository.findAllBookerPastBookings(userId, LocalDateTime.now())
+            case BookingState.PAST -> bookingRepository.findAllBookerPastBookings(userId, LocalDateTime.now())
                     .stream()
                     .map(BookingMapper::mapBookingToBookingDtoOutput)
                     .collect(Collectors.toList());
-            case "FUTURE" -> bookingRepository.findAllBookerFutureBookings(userId, LocalDateTime.now())
+            case BookingState.FUTURE -> bookingRepository.findAllBookerFutureBookings(userId, LocalDateTime.now())
                     .stream()
                     .map(BookingMapper::mapBookingToBookingDtoOutput)
                     .collect(Collectors.toList());
-            case "WAITING" -> bookingRepository.findAllByBooker_IdAndStatusOrderByStartAsc(userId,
+            case BookingState.WAITING -> bookingRepository.findAllByBooker_IdAndStatusOrderByStartAsc(userId,
                             BookingStatus.WAITING)
                     .stream()
                     .map(BookingMapper::mapBookingToBookingDtoOutput)
                     .collect(Collectors.toList());
-            case "REJECTED" -> bookingRepository.findAllByBooker_IdAndStatusOrderByStartAsc(userId,
+            case BookingState.REJECTED -> bookingRepository.findAllByBooker_IdAndStatusOrderByStartAsc(userId,
                             BookingStatus.REJECTED)
                     .stream()
                     .map(BookingMapper::mapBookingToBookingDtoOutput)
                     .collect(Collectors.toList());
-            default -> throw new BadRequestException("Bookings don't have state = " + state);
         };
     }
 
     @Override
-    public List<BookingDtoOutput> getBookingsForOwner(Long userId, String state) {
+    public List<BookingDtoOutput> getBookingsForOwner(Long userId, BookingState state) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found with id = " + userId));
 
@@ -127,34 +130,33 @@ public class BookingServiceImpl implements BookingService {
                 .stream()
                 .map(Item::getId)
                 .toList();
-        return switch (state.toUpperCase()) {
-            case "ALL" -> bookingRepository.findAllByItem_IdInOrderByStartAsc(itemIds)
+        return switch (state) {
+            case BookingState.ALL -> bookingRepository.findAllByItem_IdInOrderByStartAsc(itemIds)
                     .stream()
                     .map(BookingMapper::mapBookingToBookingDtoOutput)
                     .collect(Collectors.toList());
-            case "CURRENT" -> bookingRepository.findAllOwnerCurrentBookings(itemIds, LocalDateTime.now())
+            case BookingState.CURRENT -> bookingRepository.findAllOwnerCurrentBookings(itemIds, LocalDateTime.now())
                     .stream()
                     .map(BookingMapper::mapBookingToBookingDtoOutput)
                     .collect(Collectors.toList());
-            case "PAST" -> bookingRepository.findAllOwnerPastBookings(itemIds, LocalDateTime.now())
+            case BookingState.PAST -> bookingRepository.findAllOwnerPastBookings(itemIds, LocalDateTime.now())
                     .stream()
                     .map(BookingMapper::mapBookingToBookingDtoOutput)
                     .collect(Collectors.toList());
-            case "FUTURE" -> bookingRepository.findAllOwnerFutureBookings(itemIds, LocalDateTime.now())
+            case BookingState.FUTURE -> bookingRepository.findAllOwnerFutureBookings(itemIds, LocalDateTime.now())
                     .stream()
                     .map(BookingMapper::mapBookingToBookingDtoOutput)
                     .collect(Collectors.toList());
-            case "WAITING" -> bookingRepository.findAllByItem_IdInAndStatusOrderByStartAsc(itemIds,
+            case BookingState.WAITING -> bookingRepository.findAllByItem_IdInAndStatusOrderByStartAsc(itemIds,
                             BookingStatus.WAITING)
                     .stream()
                     .map(BookingMapper::mapBookingToBookingDtoOutput)
                     .collect(Collectors.toList());
-            case "REJECTED" -> bookingRepository.findAllByItem_IdInAndStatusOrderByStartAsc(itemIds,
+            case BookingState.REJECTED -> bookingRepository.findAllByItem_IdInAndStatusOrderByStartAsc(itemIds,
                             BookingStatus.REJECTED)
                     .stream()
                     .map(BookingMapper::mapBookingToBookingDtoOutput)
                     .collect(Collectors.toList());
-            default -> throw new BadRequestException("Bookings don't have state = " + state);
         };
 
     }
