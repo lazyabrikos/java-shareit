@@ -62,7 +62,7 @@ public class ItemController {
 
     @PostMapping("/{itemId}/comment")
     public CommentDto createComment(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId,
-                                    @RequestBody CommentDto commentDto) {
+                                    @Valid @RequestBody CommentDto commentDto) {
         log.info("Get POST request /{}/comment with body {} for user {}", itemId, commentDto, userId);
         CommentDto response = itemService.createComment(itemId, userId, commentDto);
         log.info("Send response with body {}", response);
